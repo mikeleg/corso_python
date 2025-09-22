@@ -1,7 +1,8 @@
-from sqlmodel import create_engine, Session, SQLModel, select
+from sqlmodel import Session, SQLModel, create_engine, select
 
 DATABASE_URL = "sqlite:///starwars.db"
 engine = create_engine(DATABASE_URL, echo=True)
+
 
 def get_session():
     session = Session(engine)
@@ -10,11 +11,14 @@ def get_session():
     finally:
         session.close()
 
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
+
 def populate_sample_data():
     from app.models.starwars import Character, Planet, Starship
+
     session = Session(engine)
     # Pianeti
     tatooine = Planet(name="Tatooine", climate="arid", population=200000)
@@ -26,9 +30,15 @@ def populate_sample_data():
     anakin = Character(name="Anakin Skywalker", species="Human", homeworld="Tatooine")
     padme = Character(name="Padmé Amidala", species="Human", homeworld="Naboo")
     # Astronavi
-    falcon = Starship(name="Millennium Falcon", model="YT-1300", manufacturer="Corellian Engineering Corporation")
+    falcon = Starship(
+        name="Millennium Falcon",
+        model="YT-1300",
+        manufacturer="Corellian Engineering Corporation",
+    )
     xwing = Starship(name="X-wing", model="T-65B", manufacturer="Incom Corporation")
-    tie = Starship(name="TIE Fighter", model="Twin Ion Engine", manufacturer="Sienar Fleet Systems")
+    tie = Starship(
+        name="TIE Fighter", model="Twin Ion Engine", manufacturer="Sienar Fleet Systems"
+    )
     # Inserisci solo se il db è vuoto
     if not session.exec(select(Planet)).first():
         session.add_all([tatooine, alderaan, naboo])
