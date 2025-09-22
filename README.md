@@ -1,1 +1,1 @@
-# corso_python
+# Day #2 Corso python
