@@ -1,7 +1,9 @@
 from math import ceil
-from typing import Any, Dict, Type
+from typing import Dict, Type, TypeVar, Generic, List
 
 from sqlmodel import Session, SQLModel, select
+
+T = TypeVar("T", bound=SQLModel)
 
 DEFAULT_PAGE = 1
 DEFAULT_PER_PAGE = 10
@@ -9,8 +11,8 @@ MIN_PER_PAGE = 1
 MAX_PER_PAGE = 100
 
 
-class PaginationUseCase:
-    def __init__(self, model: Type[SQLModel]):
+class PaginationUseCase(Generic[T]):
+    def __init__(self, model: Type[T]):
         self.model = model
 
     def execute(
@@ -18,10 +20,10 @@ class PaginationUseCase:
         session: Session,
         page: int = DEFAULT_PAGE,
         per_page: int = DEFAULT_PER_PAGE,
-    ) -> Dict[str, Any]:
+    ) -> Dict[str, object]:
         total = session.query(self.model).count()
         stmt = select(self.model).offset((page - 1) * per_page).limit(per_page)
-        items = session.exec(stmt).all()
+        items: List[T] = session.exec(stmt).all()
         total_pages = ceil(total / per_page) if per_page else 1
         return {
             "data": items,
