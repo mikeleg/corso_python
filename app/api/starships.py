@@ -7,6 +7,7 @@ from app.usecases.create_entity import CreateEntityUseCase
 from app.usecases.delete_entity import DeleteEntityUseCase
 from app.usecases.get_entity import GetEntityUseCase
 from app.usecases.pagination import PaginationUseCase
+from app.usecases.slice_entity import SliceUseCase
 from app.usecases.update_entity import UpdateEntityUseCase
 
 router = APIRouter(prefix="/starships", tags=["Starships"])
@@ -46,6 +47,23 @@ def list_starships(
 ):
     usecase = PaginationUseCase(Starship)
     return usecase.execute(session, page, per_page)
+
+
+# Slice route: restituisce solo i dati richiesti, senza metadati di paginazione
+@router.get("/slice")
+def slice_starships(
+    session: Session = Depends(get_session),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1),
+):
+    """
+    Restituisce una fetta di starships senza metadati di paginazione.
+    Parametri:
+        - offset: indice iniziale (inclusivo)
+        - limit: quanti elementi restituire (default 10)
+    """
+    usecase = SliceUseCase(Starship)
+    return usecase.execute(session, offset, limit)
 
 
 @router.get("/{starship_id}", response_model=Starship)

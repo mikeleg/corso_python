@@ -7,6 +7,7 @@ from app.usecases.create_entity import CreateEntityUseCase
 from app.usecases.delete_entity import DeleteEntityUseCase
 from app.usecases.get_entity import GetEntityUseCase
 from app.usecases.pagination import PaginationUseCase
+from app.usecases.slice_entity import SliceUseCase
 from app.usecases.update_entity import UpdateEntityUseCase
 
 router = APIRouter(prefix="/planets", tags=["Planets"])
@@ -46,6 +47,32 @@ def list_planets(
 ):
     usecase = PaginationUseCase(Planet)
     return usecase.execute(session, page, per_page)
+
+
+# Slice route: restituisce solo i dati richiesti, senza metadati di paginazione
+@router.get("/slice")
+def slice_planets(
+    session: Session = Depends(get_session),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1),
+):
+    """
+    Restituisce una fetta di pianeti senza metadati di paginazione.
+    Parametri:
+        - offset: indice iniziale (inclusivo)
+        - limit: quanti elementi restituire (default 10)
+    """
+    usecase = SliceUseCase(Planet)
+    return usecase.execute(session, offset, limit)
+
+
+@router.get("/{planet_id}", response_model=Planet)
+def get_planet(planet_id: int, session: Session = Depends(get_session)):
+    usecase = GetEntityUseCase(Planet)
+    planet = usecase.execute(planet_id, session)
+    if not planet:
+        raise HTTPException(status_code=404, detail="Planet not found")
+    return planet
 
 
 @router.get("/{planet_id}", response_model=Planet)
