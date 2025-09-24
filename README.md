@@ -1,14 +1,16 @@
 # Day #2 Corso python
 
-## Paginazione API
 
+## API: Paginazione vs Slice
+
+### Rotte Paginate
 Tutte le rotte GET che restituiscono liste supportano la paginazione tramite i parametri `page` e `per_page`.
 
-### Parametri
+**Parametri**
 - `page`: numero della pagina (default: 1)
 - `per_page`: elementi per pagina (default: 10, min: 1, max: 100)
 
-### Esempio di risposta
+**Esempio di risposta**
 ```json
 {
 	"data": [...],
@@ -20,6 +22,26 @@ Tutte le rotte GET che restituiscono liste supportano la paginazione tramite i p
 ```
 
 Le nuove rotte GET future erediteranno automaticamente la paginazione centralizzata.
+
+### Rotte Slice
+Le rotte `/resource/slice` restituiscono una "fetta" di dati senza metadati di paginazione.
+
+**Parametri**
+- `start`: indice iniziale (inclusivo, default: 0)
+- `end`: indice finale (esclusivo, default: 10)
+
+**Esempio di risposta**
+```json
+[
+	{ ... },
+	{ ... }
+]
+```
+
+**Differenze principali**
+- Le rotte paginated (`/resource/`) restituiscono dati e metadati (pagina, totale, ecc.).
+- Le rotte slice (`/resource/slice`) restituiscono solo la lista dei dati richiesti, senza metainformazioni.
+- Le slice sono utili quando servono solo i dati, senza informazioni aggiuntive di paginazione.
 
 ## Architettura
 
